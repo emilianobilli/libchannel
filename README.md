@@ -1,5 +1,19 @@
-# libchannel
-Golang style channels in C
+
+# Introduction to Go-style Channels in C. libchannel
+
+Go-style channels are a powerful and flexible synchronization mechanism built into the Go programming language. They allow multiple goroutines (Go's equivalent to threads) to communicate and synchronize their execution. A goroutine can send a value into a channel and another goroutine can receive that value from the other end of the channel. This channel-based communication enables goroutines to work together to complete tasks, and it is one of the reasons why Go is known for its simplicity in handling concurrency.
+
+Inspired by this, the library we are discussing brings similar channel-style mechanisms to the C programming language. This library provides a Go-like way to communicate and synchronize between threads in a C program. It's particularly suited for programs where many threads need to interact or synchronize their work in a controlled way.
+
+Here are some key concepts:
+
+- Channel: In Go, a channel is a communication medium that allows one goroutine to send values to another goroutine. In this C library, a similar concept is used. A channel is a medium through which different threads can send and receive values. Channels can be used to safely pass data between threads.
+
+- Select: In Go, the select statement is used to choose from multiple send/receive channel operations. It blocks until one of the operations is ready, and if multiple are ready at the same time, it randomly selects one. In this C library, a similar mechanism exists where a thread can wait on multiple channel operations and proceed when one is ready.
+
+- Goroutine: While C does not have direct support for goroutines, the functionality of goroutines can be approximated with threads. This library uses pthread, the POSIX thread library, to emulate goroutine-like behavior.
+
+This library is not a direct clone of Go's concurrency model but it brings many of its benefits to C. It enables C programs to leverage the benefits of Go-style channels, and provides a model for structuring programs that is similar to what you might find in Go.
 
 ## The any_t Structure
 
