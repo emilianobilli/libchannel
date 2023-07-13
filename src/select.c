@@ -204,10 +204,27 @@ static int select_chan_try_op(chan_t *chan, int op_type, void *data) {
     return 0;
 }
 
+/*
+ * Function: loockup_cd
+ * --------------------
+ * This function searches for a channel descriptor (cd) in a set of select_set_t structures. 
+ * It iterates over each select_set_t in the set and compares its cd with the provided cd. 
+ * If it finds a match, it returns the index of the matching select_set_t in the set. 
+ * If it does not find a match, it returns -1.
+ *
+ * Parameters:
+ * set: A pointer to the set of select_set_t structures. Each select_set_t contains a channel descriptor (cd), 
+ *      the operation type, and possibly the send and receive values.
+ * size: The size of the set, i.e., the number of select_set_t in the set.
+ * cd: The channel descriptor that is being searched in the set.
+ *
+ * Returns:
+ * The index in the set where cd was found, or -1 if cd is not found.
+ */
 
-int get_index_by_cd(select_set_t *arr, int size, int cd) {
+static int loockup_cd(select_set_t *set, int size, int cd) {
     for (int i = 0; i < size; i++) {
-        if (arr[i].cd == cd) {
+        if (set[i].cd == cd) {
             return i;
         }
     }
@@ -258,8 +275,6 @@ void dump_channel(int cd) {
     }
 }
 
-// Esta es la función wrapper para printf
-
 
 /*
  * Function: wait_and_release
@@ -305,8 +320,8 @@ static int wait_and_release(condvar_t **cvar) {
 
 
 /*
- * Function: select_chan
- * ---------------------
+ * Function: select_chan_op
+ * ------------------------
  * This function attempts to synchronize and communicate between threads
  * using a select operation on multiple channels.
  *
@@ -400,13 +415,30 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
     tprintf("Me despertaron para %d\n", cd);
     // Find the index of the operation that can be performed
     print_array(set, n);
-    i = get_index_by_cd(set, n, cd);
+    i = loockup_cd(set, n, cd);
     tprintf("Me despertaron para %d, index: %d, op_type: %d\n", cd, i, set[i].op_type);
     // Try to perform the operation again
     return select_chan_op(&set[i], 1, should_block);
 }
 
 
+/*
+ * Function: select_chan_op
+ * ------------------------
+ * This function attempts to synchronize and communicate between threads
+ * using a select operation on multiple channels.
+ *
+ * Parameters:
+ * - set: a pointer to an array of `select_set_t` structures, representing the channels to be selected.
+ * - n: the number of channels in the array.
+ * - should_block: a int to check if the select needs to wait until one channel is ready or not
+ *
+ * Returns:
+ * - Upon successful completion, the function returns 1.
+ * - If there are no channels in the array (n == 0), the function returns -1.
+ * - If the select operation is unsuccessful, the function goes into a blocking state, waiting for a condition to be signaled.
+ * - The function returns the result of `select_chan` function, if the condition variable is signaled.
+ */
 int select_chan(select_set_t *set, size_t n, int should_block) {
     return select_chan_op(set, n, should_block);
 } 

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "waitq.h"
 
 /*
@@ -21,6 +22,57 @@ static int condvar_pool_max;
  */
 static pthread_mutex_t condvar_pool_mutex;
 
+/*
+ * Function: alloc_condvar
+ * -----------------------
+ * This function allocates memory for a new `condvar_t` structure.
+ * 
+ * Parameters:
+ *    None.
+ * 
+ * Returns:
+ *    On success, it returns a pointer to the newly allocated `condvar_t` structure.
+ *    If the function fails to allocate memory, it returns NULL.
+ */
+static condvar_t *alloc_condvar() {
+    condvar_t *cv = calloc(1, sizeof(condvar_t));
+    if (!cv) {
+        return NULL;
+    }
+
+    // Initialize the condition variable and mutex
+    pthread_cond_init(&(cv->pcond), NULL);
+    pthread_mutex_init(&(cv->mutex), NULL);
+    atomic_init(&(cv->ref), 0);
+    atomic_init(&(cv->cd), CV_NULL_CHANNEL_DESCRIPTOR);
+    // Other members of condvar_t can be initialized here as needed.
+
+    return cv;
+}
+
+/*
+ * Function: free_condvar
+ * ----------------------
+ * This function releases the memory previously allocated for a `condvar_t` structure.
+ * 
+ * Parameters:
+ *    cv - a pointer to the pointer of the `condvar_t` structure that is to be deallocated.
+ * 
+ * Returns:
+ *    Nothing.
+ */
+static void free_condvar(condvar_t **cv) {
+    if (!cv || !*cv) {
+        return;
+    }
+
+    // Destroy the condition variable and mutex before freeing the memory
+    pthread_cond_destroy(&((*cv)->pcond));
+    pthread_mutex_destroy(&((*cv)->mutex));
+
+    free(*cv);
+    *cv = NULL;
+}
 
 /*
  * Function: empty_condvar

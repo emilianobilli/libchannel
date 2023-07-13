@@ -64,5 +64,5 @@ extern int send_chan(int cd, any_t *send);
 extern int recv_chan(int cd, any_t *recv);
 
 extern void dump_channel(int cd);
-int select_chan(select_set_t *set, size_t n, int should_block);
+extern int select_chan(select_set_t *set, size_t n, int should_block);
 #endif

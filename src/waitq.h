@@ -69,32 +69,4 @@ extern condvar_t *dequeue(waitq_t *waitq);
  */
 extern int enqueue(waitq_t *waitq, condvar_t *ptrcv);
 
-/* 
- * Function: alloc_condvar
- * -----------------------
- * This function allocates memory for a new `condvar_t` structure.
- * 
- * Parameters:
- *    None.
- * 
- * Returns:
- *    On success, it returns a pointer to the newly allocated `condvar_t` structure.
- *    If the function fails to allocate memory, it returns NULL.
- */
-extern condvar_t *alloc_condvar();
-
-/* 
- * Function: free_condvar
- * ----------------------
- * This function releases the memory previously allocated for a `condvar_t` structure.
- * 
- * Parameters:
- *    cv - a pointer to the pointer of the `condvar_t` structure that is to be deallocated.
- * 
- * Returns:
- *    Nothing.
- */
-extern void free_condvar(condvar_t **cv);
-
-
 #endif
