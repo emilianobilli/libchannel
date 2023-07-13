@@ -8,6 +8,9 @@
 #define OP_SEND 0 // Constant for Send operation type
 #define OP_RECV 1 // Constant for Receive operation type
 
+
+#define SELECT_BLOCK    1
+#define SELECT_NONBLOCK 0
 /*
  * Structure: select_set_t
  * -----------------------
