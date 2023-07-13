@@ -2,16 +2,20 @@
 #define _LC_WAITQ_H 1
 
 #include <pthread.h>
+#include <stdatomic.h>
+
+#define CV_NULL_CHANNEL_DESCRIPTOR -1
 
 /* 
  * `condvar_t` is a structure that bundles a condition variable and a mutex, 
  * along with a boolean indicating whether it's a select operation, and a channel descriptor.
  */
 typedef struct {
-    pthread_cond_t  cond_var;    // Condition variable for thread synchronization.
+    pthread_cond_t  pcond;    // Condition variable for thread synchronization.
     pthread_mutex_t mutex;       // Mutex to ensure mutual exclusion.
-    int is_select;               // Boolean flag indicating if it's a select operation.
-    int cd;                      // Channel descriptor.
+    pthread_t  thread;
+    atomic_int ref;
+    atomic_int cd;
 } condvar_t;
 
 /* 
@@ -19,7 +23,7 @@ typedef struct {
  * It contains a pointer to a `condvar_t` structure and pointers to the next and previous node in the queue.
  */
 typedef struct waitq_node {
-    condvar_t    *pcondvar;      // Pointer to the associated condvar_t structure.
+    condvar_t    *ptrcv;      // Pointer to the associated condvar_t structure.
     struct waitq_node *next;     // Pointer to the next node in the queue.
     struct waitq_node *prev;     // Pointer to the previous node in the queue.
 } waitq_node_t;
@@ -57,13 +61,13 @@ extern condvar_t *dequeue(waitq_t *waitq);
  * 
  * Parameters:
  *    waitq - a pointer to the queue to which the new node is to be enqueued.
- *    pcondvar - a pointer to a `condvar_t` structure to be stored in the new node.
+ *    ptrcv - a pointer to a `condvar_t` structure to be stored in the new node.
  * 
  * Returns:
  *    On success, it returns 0.
  *    If the function fails to allocate memory for the new node, it returns -1.
  */
-extern int enqueue(waitq_t *waitq, condvar_t *pcondvar);
+extern int enqueue(waitq_t *waitq, condvar_t *ptrcv);
 
 /* 
  * Function: alloc_condvar
@@ -91,5 +95,6 @@ extern condvar_t *alloc_condvar();
  *    Nothing.
  */
 extern void free_condvar(condvar_t **cv);
+
 
 #endif

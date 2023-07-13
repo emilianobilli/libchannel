@@ -8,19 +8,19 @@
  * 
  * Parameters:
  *    waitq - a pointer to the queue to which the new node is to be enqueued.
- *    pcondvar - a pointer to a `condvar_t` structure to be stored in the new node.
+ *    ptrcv - a pointer to a `condvar_t` structure to be stored in the new node.
  * 
  * Returns:
  *    On success, it returns 0.
  *    If the function fails to allocate memory for the new node, it returns -1.
  */
-int enqueue(waitq_t *waitq, condvar_t *pcondvar) {
+int enqueue(waitq_t *waitq, condvar_t *ptrcv) {
     waitq_node_t *new_node = malloc(sizeof(waitq_node_t));
     if (!new_node) {
         return -1;
     }
 
-    new_node->pcondvar = pcondvar;
+    new_node->ptrcv = ptrcv;
     new_node->next = NULL;
 
     if (waitq->len == 0) {
@@ -49,12 +49,12 @@ int enqueue(waitq_t *waitq, condvar_t *pcondvar) {
  *    If the queue is empty, it returns NULL.
  */
 condvar_t *dequeue(waitq_t *waitq) {
-    condvar_t *pcondvar = NULL;
+    condvar_t *ptrcv = NULL;
     waitq_node_t *head;
 
     if (waitq->len > 0 ) {
         head = waitq->head;
-        pcondvar = head->pcondvar;
+        ptrcv = head->ptrcv;
         waitq->head = head->next;
         if (waitq->head) {
             waitq->head->prev = NULL;
@@ -64,7 +64,7 @@ condvar_t *dequeue(waitq_t *waitq) {
         waitq->len--;
         free(head);
     }
-    return pcondvar;
+    return ptrcv;
 }
 
 
@@ -87,9 +87,10 @@ condvar_t *alloc_condvar() {
     }
 
     // Initialize the condition variable and mutex
-    pthread_cond_init(&(cv->cond_var), NULL);
+    pthread_cond_init(&(cv->pcond), NULL);
     pthread_mutex_init(&(cv->mutex), NULL);
-
+    atomic_init(&(cv->ref), 0);
+    atomic_init(&(cv->cd), CV_NULL_CHANNEL_DESCRIPTOR);
     // Other members of condvar_t can be initialized here as needed.
 
     return cv;
@@ -112,7 +113,7 @@ void free_condvar(condvar_t **cv) {
     }
 
     // Destroy the condition variable and mutex before freeing the memory
-    pthread_cond_destroy(&((*cv)->cond_var));
+    pthread_cond_destroy(&((*cv)->pcond));
     pthread_mutex_destroy(&((*cv)->mutex));
 
     free(*cv);

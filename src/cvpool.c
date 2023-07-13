@@ -37,7 +37,7 @@ static pthread_mutex_t condvar_pool_mutex;
 condvar_t *empty_condvar() {
     condvar_t *ret;
     pthread_mutex_lock(&condvar_pool_mutex);
-    ret = cond_var.len > 0 ? dequeue(&condvar_pool) : alloc_condvar();
+    ret = condvar_pool.len > 0 ? dequeue(&condvar_pool) : alloc_condvar();
     pthread_mutex_unlock(&condvar_pool_mutex);
     return ret;
 }
@@ -54,14 +54,15 @@ condvar_t *empty_condvar() {
  * Returns:
  *    Nothing.
  */
-void release_condvar(cond_var **cv) {
-    (*cv)->is_select = 0;
-    (*cv)->cd = -1;
+void release_condvar(condvar_t **cv) {
+    atomic_init(&((*cv)->ref), 0);
+    atomic_init(&((*cv)->cd), CV_NULL_CHANNEL_DESCRIPTOR);
     pthread_mutex_lock(&condvar_pool_mutex);
-    if (cond_var.len == condvar_pool_max) {
+    if (condvar_pool.len == condvar_pool_max) {
         free_condvar(cv);
     } else {
         enqueue(&condvar_pool, *cv);
+        *cv = NULL;
     }
     pthread_mutex_unlock(&condvar_pool_mutex);
 }
@@ -81,6 +82,6 @@ int init_condvar_pool(int pool_max) {
     condvar_pool_max = pool_max;
     condvar_pool.head = NULL;
     condvar_pool.tail = NULL;
-    condvar.len = 0;
+    condvar_pool.len = 0;
     return pthread_mutex_init(&condvar_pool_mutex, NULL);
 }

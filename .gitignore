@@ -1,0 +1,5 @@
+
+*.plist
+src/main.dSYM/Contents/Resources/DWARF/main
+src/main.c
+src/main

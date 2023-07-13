@@ -15,16 +15,14 @@ typedef struct {
     int type;
     union {
         int32_t int32_val;
-        int64_t int64_t_val;
-        int16_t int16_t_val;
-        int8_t  int8_t_val;
+        int64_t int64_val;
+        int16_t int16_val;
+        int8_t  int8_val;
         float   float_val;
         double  double_val;
         void    *pointer_val;
     } value;
 } any_t;
-
-#define PRIVATE static
 
 #endif
 
