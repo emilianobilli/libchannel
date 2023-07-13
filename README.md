@@ -15,6 +15,19 @@ Here are some key concepts:
 
 This library is not a direct clone of Go's concurrency model but it brings many of its benefits to C. It enables C programs to leverage the benefits of Go-style channels, and provides a model for structuring programs that is similar to what you might find in Go.
 
+## Create a Channel
+
+In Go, creating a channel is as simple as using the make built-in function. In our C library, we have a similar function make_chan(size_t len) to create a channel.
+
+Here is how you can use it:
+
+```
+int chan_descriptor = make_chan(10);
+```
+
+This function takes one argument which is the size of the channel's buffer, len. In this case, the size of the channel's buffer is 10. The function returns an integer which acts as a descriptor for the created channel.
+
+
 ## The any_t Structure
 
 The any_t structure is a way to store various types of data in a type-safe way. This is done through the use of a union, which can store different types of data in the same memory space. The actual type of the data is tracked using an int field named type.
