@@ -11,7 +11,7 @@ Here are some key concepts:
 
 - Select: In Go, the select statement is used to choose from multiple send/receive channel operations. It blocks until one of the operations is ready, and if multiple are ready at the same time, it randomly selects one. In this C library, a similar mechanism exists where a thread can wait on multiple channel operations and proceed when one is ready.
 
-- Goroutine: While C does not have direct support for goroutines, the functionality of goroutines can be approximated with threads. This library uses pthread, the POSIX thread library, to emulate goroutine-like behavior.
+- Goroutine: While C does not have direct support for goroutines, the functionality of goroutines can be approximated with threads. 
 
 This library is not a direct clone of Go's concurrency model but it brings many of its benefits to C. It enables C programs to leverage the benefits of Go-style channels, and provides a model for structuring programs that is similar to what you might find in Go.
 
