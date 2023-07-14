@@ -1,5 +1,31 @@
-#ifndef _VAR_TYPES_H
-#define _VAR_TYPES_H 1
+/*
+ * File: types.h
+ * ----------------------------
+ * This header file includes definitions for the 'any_t' structure and 
+ * different variable type identifiers used in the library.
+ *
+ * The 'any_t' structure is a generic type that allows storing values of different types.
+ * It consists of an 'int type' which indicates the type of the value stored and a union
+ * which contains different possible types for the value. It enables users to store
+ * different types of variables (e.g., int32, int64, float, double, pointer, etc.) in a 
+ * unified way.
+ *
+ * Structures:
+ * any_t: A structure for generic types.
+ *
+ *      int type: An identifier indicating the type of value stored.
+ *      union value: A union that contains different possible types for the value.
+ *
+ * Macros:
+ * VAR_INT8 to VAR_POINTER: These macros are defined as different identifiers for the type 
+ * of the value stored in 'any_t'.
+ *
+ * Note:
+ * types.h should only be included once, hence the use of '_TYPES_H' definition to prevent 
+ * multiple inclusions.
+ */
+#ifndef _TYPES_H
+#define _TYPES_H 1
 
 #define VAR_INT8         0x00
 #define VAR_INT16        0x01

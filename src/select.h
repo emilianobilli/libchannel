@@ -64,5 +64,23 @@ extern int send_chan(int cd, any_t *send);
 extern int recv_chan(int cd, any_t *recv);
 
 extern void dump_channel(int cd);
+
+/*
+ * Function: select_chan_op
+ * ------------------------
+ * This function attempts to synchronize and communicate between threads
+ * using a select operation on multiple channels.
+ *
+ * Parameters:
+ * - set: a pointer to an array of `select_set_t` structures, representing the channels to be selected.
+ * - n: the number of channels in the array.
+ * - should_block: a int to check if the select needs to wait until one channel is ready or not
+ *
+ * Returns:
+ * - Upon successful completion, the function returns 1.
+ * - If there are no channels in the array (n == 0), the function returns -1.
+ * - If the select operation is unsuccessful, the function goes into a blocking state, waiting for a condition to be signaled.
+ * - The function returns the result of `select_chan` function, if the condition variable is signaled.
+ */
 extern int select_chan(select_set_t *set, size_t n, int should_block);
 #endif

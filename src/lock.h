@@ -3,7 +3,6 @@
 #define _LOCK_H 1
 
 #include "select.h"
-
 /*
  * Function: lockall
  * -----------------
