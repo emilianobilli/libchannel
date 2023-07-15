@@ -115,6 +115,12 @@ int select_chan(select_set_t *set, size_t n, int should_block);
 ### Here is an example of how to use select_chan:
 
 ```
+any_t v;
+int a = make_chan(1);
+int b = make_chan(5);
+
+/* ... create pthreads to send values to the channels */
+
 for (;;) {
     int n;
     select_set_t op[] = {
