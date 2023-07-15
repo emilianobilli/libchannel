@@ -106,8 +106,6 @@ static void wakeup_next_waiting(chan_t *chan, int op_type, int cd) {
                 cv = NULL;
             }
         }
-
-        tprintf("wakeup saco variable %p, chan->send_shift: %lu, chan->recv_shift: %lu\n", cv, chan->send_shift ?*(chan->send_shift): NULL, chan->recv_shift? *(chan->recv_shift):NULL);
         // Break the loop if there's no condition variable
         if (!cv) {
             end = 1;
@@ -131,7 +129,6 @@ static void wakeup_next_waiting(chan_t *chan, int op_type, int cd) {
             else
                 chan->send_shift = thread;
 
-            tprintf("wakeup despertando a %lu - cd: %d, var: %p\n", op_type == OP_SEND ? (unsigned long) *(chan->recv_shift) : *(chan->send_shift), cv->cd, cv );
             // Signal the condition variable's condition
             pthread_cond_signal(&(cv->pcond));
             // Unlock the condition variable's mutex
@@ -142,7 +139,6 @@ static void wakeup_next_waiting(chan_t *chan, int op_type, int cd) {
             // If cv->cd != expected, decrease the reference count of the condition variable
             // If the reference count becomes 0, release the condition variable
             if (ATOMIC_DEC(&(cv->ref)) == 0) {
-                tprintf("wakeup liberando variable %p\n", cv);
                 release_condvar(&cv);
             }
         }
@@ -198,7 +194,6 @@ static int select_chan_try_op(chan_t *chan, int op_type, void *data) {
             ok = 0;
         }
     }
-    tprintf("%s: ok: %d\n", op_type == OP_SEND ? "send" : "recv", ok);
     if (ok) 
         return 1;
     return 0;
@@ -294,16 +289,12 @@ static int wait_and_release(condvar_t **cvar) {
 
     // Acquire the mutex lock
     pthread_mutex_lock(&((*cvar)->mutex));
-    tprintf("bloqueo mutex\n");
     // Wait until the channel descriptor is not CV_NULL_CHANNEL_DESCRIPTOR.
     // If during this period the reference count drops to zero, release the condition variable resource
     while ((cd = atomic_load(&((*cvar)->cd))) == CV_NULL_CHANNEL_DESCRIPTOR) {
-        tprintf("en while %d, var: %p, cd: %d\n", cd, *cvar, (*cvar)->cd);
         pthread_cond_wait(&((*cvar)->pcond), &((*cvar)->mutex));
-        tprintf("llego la señal %d, var: %p, cd: %d\n", cd, *cvar, (*cvar)->cd);
     }
     if (ATOMIC_DEC(&((*cvar)->ref)) == 0) {
-        tprintf("wait and release liberando var %p\n", *cvar);
         // At this point, it is safe to release the condition variable as no other thread is using it
         pthread_mutex_unlock(&((*cvar)->mutex));
         release_condvar(cvar);
@@ -356,7 +347,7 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
 
     // If no operations are specified, return -1
     if (n == 0)
-        return -1;
+        return 0;
 
     // If there's more than one operation, shuffle them to avoid bias
     if (n > 1)
@@ -370,6 +361,12 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
         pset = &set[i];
         chan = get_channel_from_table(pset->cd);
 
+        // Check if channel is closed
+        if (!chan || chan->closed) {
+            unlockall(&lockorder, n);
+            return -(pset->cd);
+        }
+
         // Try to perform the operation
         if ((success = select_chan_try_op(chan, pset->op_type, (pset->op_type == OP_SEND) ? pset->send : pset->recv))) {
             // If the operation was successful, wake up the next thread waiting for the opposite operation
@@ -377,14 +374,14 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
             // Unlock all the channels
             unlockall(&lockorder, n);
             // Return success
-            return 1;
+            return pset->cd;
         }
     }
 
     // If should_block is false, we unlock all channels and return the result of the operations (successful or not)
     if (!should_block) {
         unlockall(&lockorder, n);
-        return success;
+        return 0;
     }
 
     // If should_block is true and no operation was successful, we block until an operation can be performed
@@ -406,17 +403,14 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
         else
             enqueue(&(chan->recvq), cvar);
     }
-    tprintf("Esperando en %d canales\n", (cvar->ref)-1);
+
     // Unlock all the channels
     unlockall(&lockorder, n);
 
     // Wait until one of the operations can be performed and get the channel descriptor of the operation
     cd = wait_and_release(&cvar);
-    tprintf("Me despertaron para %d\n", cd);
     // Find the index of the operation that can be performed
-    print_array(set, n);
     i = loockup_cd(set, n, cd);
-    tprintf("Me despertaron para %d, index: %d, op_type: %d\n", cd, i, set[i].op_type);
     // Try to perform the operation again
     return select_chan_op(&set[i], 1, should_block);
 }

@@ -46,6 +46,7 @@ int make_chan(size_t len) {
     cd = next_channel++;
     channel_table[cd] = calloc(1, sizeof(chan_t));
     channel_table[cd]->cb = cb_init(len);
+    channel_table[cd]->closed = 0;
     channel_table[cd]->send_shift = NULL;
     channel_table[cd]->recv_shift = NULL;
     channel_table[cd]->sendq.len = 0;

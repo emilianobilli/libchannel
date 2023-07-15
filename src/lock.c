@@ -58,7 +58,8 @@ int *lockall(select_set_t *set, size_t n) {
 
     for (i = 0; i < n; i++) {
         chan = get_channel_from_table(lockorder[i]);
-        pthread_mutex_lock(&(chan->mutex));
+        if (chan)
+            pthread_mutex_lock(&(chan->mutex));
     }
     return lockorder;
 }
@@ -82,7 +83,8 @@ void unlockall(int **lockorder, size_t n) {
     chan_t *chan;
     for (i = 0; i < n; i++) {
         chan = get_channel_from_table((*lockorder)[i]);
-        pthread_mutex_unlock(&(chan->mutex));
+        if (chan)
+            pthread_mutex_unlock(&(chan->mutex));
     }
     free(*lockorder);
     *lockorder = NULL;

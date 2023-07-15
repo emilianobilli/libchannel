@@ -4,8 +4,6 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
-#define CV_NULL_CHANNEL_DESCRIPTOR -1
-
 /* 
  * `condvar_t` is a structure that bundles a condition variable and a mutex, 
  * along with a boolean indicating whether it's a select operation, and a channel descriptor.
