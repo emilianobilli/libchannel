@@ -21,7 +21,7 @@ static chan_t *channel_table[MAX_CHANNELS] = { 0 };
  * ----------------------
  * This is a counter that indicates the next available channel in the channel table.
  */
-static int next_channel = 0;
+static int next_channel = 1;
 
 /*
  * Mutex: channel_table_mutex
@@ -44,21 +44,53 @@ int make_chan(size_t len) {
     int cd;
     pthread_mutex_lock(&channel_table_mutex);
     cd = next_channel++;
-    channel_table[cd] = calloc(1, sizeof(chan_t));
-    channel_table[cd]->cb = cb_init(len);
-    channel_table[cd]->closed = 0;
-    channel_table[cd]->send_shift = NULL;
-    channel_table[cd]->recv_shift = NULL;
-    channel_table[cd]->sendq.len = 0;
-    channel_table[cd]->sendq.head = NULL;
-    channel_table[cd]->sendq.tail = NULL;
-    channel_table[cd]->recvq.len = 0;
-    channel_table[cd]->recvq.head = NULL;
-    channel_table[cd]->recvq.tail = NULL;
-
-    pthread_mutex_init(&(channel_table[cd]->mutex), NULL);
+    channel_table[cd] = new_chan(len);
     pthread_mutex_unlock(&channel_table_mutex);
     return cd;
+}
+
+/*
+ * Function: close_chan
+ * --------------------
+ * This function attempts to close a given channel. 
+ *
+ * The function first acquires a lock on the channel table, then checks if the
+ * channel exists and if it is closeable according to the is_closeable function.
+ * If the channel is closeable, it is removed from the channel table, deleted,
+ * and the function returns 0 to indicate a successful operation. 
+ *
+ * If the channel does not exist, is not closeable, or any other errors occur, 
+ * the function returns -1 to signal an unsuccessful operation. 
+ *
+ * The function handles unlocking the acquired locks before it returns, 
+ * regardless of the operation's success or failure.
+ *
+ * Parameters:
+ * cd: The channel descriptor of the channel to close.
+ *
+ * Returns:
+ * 0 if the operation was successful, and -1 otherwise.
+ */
+int close_chan(int cd) {
+    int ret;
+    chan_t *chan;
+    pthread_mutex_lock(&channel_table_mutex);
+    chan = channel_table[cd];
+    if (chan) {
+        pthread_mutex_lock(&(chan->mutex));
+        if (is_closeable(chan)) {
+            channel_table[cd] = NULL;
+            del_chan(chan);
+            ret = 0;
+        } else {
+            ret = -1;
+        }
+        pthread_mutex_unlock(&(chan->mutex));
+    } else {
+        ret = -1;
+    }
+    pthread_mutex_unlock(&channel_table_mutex);
+    return ret;
 }
 
 /*
@@ -68,7 +100,11 @@ int make_chan(size_t len) {
  * identifier in the channel table.
  */
 chan_t *get_channel_from_table(int cd) {
-    return channel_table[cd];
+    chan_t *chan;
+    pthread_mutex_lock(&channel_table_mutex);
+    chan = channel_table[cd];
+    pthread_mutex_unlock(&channel_table_mutex);
+    return chan;
 }
 
 int init_channel_pool(void) {

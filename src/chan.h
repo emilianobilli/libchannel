@@ -39,9 +39,7 @@
 #include "waitq.h"
 
 typedef struct {
-    cbuff_t *cb;
-    int  closed;
-    
+    cbuff_t *cb;    
     pthread_mutex_t mutex;
 
     pthread_t *recv_shift;
@@ -50,5 +48,49 @@ typedef struct {
     waitq_t recvq;
     waitq_t sendq;
 } chan_t;
+
+/*
+ * Function: new_chan
+ * ---------------------
+ * Initialize a new channel of given length.
+ *
+ * Parameters:
+ * len: the length for the channel's internal buffer.
+ *
+ * Returns: a pointer to the newly allocated channel. If memory allocation 
+ * fails, returns NULL.
+ *
+ */
+extern chan_t *new_chan(size_t);
+
+/*
+ * Function: del_chan
+ * ---------------------
+ * Delete a channel and free its associated resources. 
+ *
+ * Parameters:
+ * chan: a pointer to the channel to be deleted.
+ *
+ * Returns: nothing.
+ *
+ */
+extern void del_chan(chan_t *chan);
+
+/*
+ * Function: is_closeable
+ * ------------------------
+ * Check if a channel can be closed. 
+ *
+ * A channel is closeable if there are no shifts waiting to send or receive 
+ * from it and if its send and receive queues are empty.
+ *
+ * Parameters:
+ * chan: a pointer to the channel to be checked.
+ *
+ * Returns: 1 if the channel is closeable and 0 otherwise.
+ *
+ */
+extern int is_closeable(chan_t *chan);
+
 
 #endif

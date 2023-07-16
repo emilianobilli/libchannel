@@ -361,8 +361,8 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
         pset = &set[i];
         chan = get_channel_from_table(pset->cd);
 
-        // Check if channel is closed
-        if (!chan || chan->closed) {
+        // Check if channel is closed or does not exist
+        if (!chan) {
             unlockall(&lockorder, n);
             return -(pset->cd);
         }
@@ -436,8 +436,6 @@ int select_chan_op(select_set_t *set, size_t n, int should_block) {
 int select_chan(select_set_t *set, size_t n, int should_block) {
     return select_chan_op(set, n, should_block);
 } 
-
-
 
 /*
  * Function: send_chan

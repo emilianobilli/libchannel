@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "waitq.h"
+#include "chan.h"
 
 /*
  * Global Variable: condvar_pool
