@@ -93,12 +93,8 @@ int main(void) {
 
     // Simulate an initialization phase.
     sleep(3);
-
 	// 1-to-N notifications.
     send_chan(ready, &nil);    send_chan(ready, &nil);    send_chan(ready, &nil);
-
-
-
 	// Being N-to-1 notified.
     recv_chan(done, &nil);    recv_chan(done, &nil);    recv_chan(done, &nil);
 }
