@@ -334,7 +334,6 @@ static int wait_and_release(condvar_t **cvar) {
 int select_chan_op(select_set_t *set, size_t n, int should_block) {
     select_set_t *pset;
     chan_t       *chan;
-    waitq_t      *queue;
     condvar_t    *cvar;
     int i;
     int cd;
