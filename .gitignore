@@ -5,3 +5,4 @@ src/main.c
 src/main
 src/examples/schedule_notifications
 src/examples/nto1_1ton
+src/examples/try_send_try_recv
