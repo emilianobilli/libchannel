@@ -34,7 +34,7 @@ struct fnarg {
     int d;
 };
 
-#define GO(func, arg) do { pthread_t __routine; pthread_create(&__routine, NULL, &func, arg); pthread_detach(__routine); } while(0);
+#define GO(func, arg) do { pthread_t __routine; pthread_create(&__routine, NULL, &func, arg); pthread_detach(__routine); } while(0)
 
 void *function(void *arg) {
     struct fnarg *a = (struct fnarg *)arg;
