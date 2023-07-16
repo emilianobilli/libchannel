@@ -2,7 +2,7 @@
 #ifndef _LOCK_H
 #define _LOCK_H 1
 
-#include "select.h"
+#include "libchannel.h"
 /*
  * Function: lockall
  * -----------------

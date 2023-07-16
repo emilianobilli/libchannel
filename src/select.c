@@ -3,17 +3,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
-#include "types.h"
-#include "select.h"
+#include "libchannel.h"
 #include "waitq.h"
-#include "global.h"
 #include "chan.h"
 #include "lock.h"
 #include "atomic.h"
-
-
-
-
+#include "chpool.h"
+#include "cvpool.h"
 
 void tprintf(const char *format, ...) {
     va_list args;

@@ -34,7 +34,7 @@
 
 #include <pthread.h>
 
-#include "types.h"
+#include "libchannel.h"
 #include "cb.h"
 #include "waitq.h"
 

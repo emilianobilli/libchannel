@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "select.h"
+#include "libchannel.h"
 #include "chan.h"
-#include "global.h"
+#include "cvpool.h"
+#include "chpool.h"
 
 /*
  * Function: compare_int

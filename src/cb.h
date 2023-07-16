@@ -2,7 +2,7 @@
 #define _LC_CB_H
 
 #include <stdio.h>
-#include "types.h"
+#include "libchannel.h"
 
 // The `cbuff_t` structure defines a circular buffer that can store `rawdata_t` type data.
 typedef struct {

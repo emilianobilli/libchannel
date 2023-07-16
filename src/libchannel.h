@@ -1,7 +1,50 @@
-#ifndef _SELECT_H
-#define _SELECT_H 1
+#ifndef _LIBCHANNEL_H
+#define _LIBCHANNEL_H 1
 
-#include "types.h"
+#define VAR_INT8         0x00
+#define VAR_INT16        0x01
+#define VAR_INT32        0x02
+#define VAR_INT64        0x03
+#define VAR_FLOAT        0x04
+#define VAR_DOUBLE       0x05
+#define VAR_POINTER      0x06
+
+#include <stdint.h>
+#include <stdlib.h>
+
+/* The 'any_t' structure is a generic type that allows storing values of different types.
+ * It consists of an 'int type' which indicates the type of the value stored and a union
+ * which contains different possible types for the value. It enables users to store
+ * different types of variables (e.g., int32, int64, float, double, pointer, etc.) in a 
+ * unified way.
+ *
+ * Structures:
+ * any_t: A structure for generic types.
+ *
+ *      int type: An identifier indicating the type of value stored.
+ *      union value: A union that contains different possible types for the value.
+ *
+ * Macros:
+ * VAR_INT8 to VAR_POINTER: These macros are defined as different identifiers for the type 
+ * of the value stored in 'any_t'.
+ *
+ * Note:
+ * types.h should only be included once, hence the use of '_TYPES_H' definition to prevent 
+ * multiple inclusions.
+ */
+typedef struct {
+    int type;
+    union {
+        int32_t int32_val;
+        int64_t int64_val;
+        int16_t int16_val;
+        int8_t  int8_val;
+        float   float_val;
+        double  double_val;
+        void    *pointer_val;
+    } value;
+} any_t;
+
 /*
  * Constants for Operation Types
  */
@@ -31,6 +74,10 @@ typedef struct {
     any_t *send;
     any_t *recv;
 } select_set_t;
+
+
+extern int init_libchannel(void);
+
 
 /*
  * Function: send_chan
@@ -63,8 +110,6 @@ extern int send_chan(int cd, any_t *send);
  */
 extern int recv_chan(int cd, any_t *recv);
 
-extern void dump_channel(int cd);
-
 /*
  * Function: select_chan_op
  * ------------------------
@@ -83,4 +128,40 @@ extern void dump_channel(int cd);
  * - The function returns the result of `select_chan` function, if the condition variable is signaled.
  */
 extern int select_chan(select_set_t *set, size_t n, int should_block);
+
+/*
+ * Function: make_chan
+ * ---------------------
+ * This function creates a new channel and adds it to the channel table. 
+ * It locks the channel table mutex to prevent conflicts, then initializes 
+ * the new channel with a buffer of size 'len', empty queues for 
+ * message sending and receiving, and a new mutex.
+ * Returns the identifier of the created channel.
+ */
+extern int make_chan(size_t len);
+
+
+/*
+ * Function: close_chan
+ * --------------------
+ * This function attempts to close a given channel. 
+ *
+ * The function first acquires a lock on the channel table, then checks if the
+ * channel exists and if it is closeable according to the is_closeable function.
+ * If the channel is closeable, it is removed from the channel table, deleted,
+ * and the function returns 0 to indicate a successful operation. 
+ *
+ * If the channel does not exist, is not closeable, or any other errors occur, 
+ * the function returns -1 to signal an unsuccessful operation. 
+ *
+ * The function handles unlocking the acquired locks before it returns, 
+ * regardless of the operation's success or failure.
+ *
+ * Parameters:
+ * cd: The channel descriptor of the channel to close.
+ *
+ * Returns:
+ * 0 if the operation was successful, and -1 otherwise.
+ */
+extern int close_chan(int cd);
 #endif
