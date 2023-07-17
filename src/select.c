@@ -449,7 +449,14 @@ int send_chan(int cd, any_t *send) {
     select_set_t op[] = {
         {cd, OP_SEND, send, NULL},  // Define a channel operation for sending.
     };
-    return select_chan(op, 1, 1);  // Attempt to perform the operation.
+    return select_chan(op, 1, SELECT_BLOCK);  // Attempt to perform the operation.
+}
+
+int send_chan_bctrl(int cd, any_t *send, int should_block) {
+    select_set_t op[] = {
+        {cd, OP_SEND, send, NULL},  // Define a channel operation for sending.
+    };
+    return select_chan(op, 1, should_block);  // Attempt to perform the operation.
 }
 
 /*
@@ -469,5 +476,12 @@ int recv_chan(int cd, any_t *recv) {
     select_set_t op[] = {
         {cd, OP_RECV, NULL, recv},  // Define a channel operation for receiving.
     };
-    return select_chan(op, 1, 1);  // Attempt to perform the operation.
+    return select_chan(op, 1, SELECT_BLOCK);  // Attempt to perform the operation.
+}
+
+int recv_chan_bctrl(int cd, any_t *recv, int should_block) {
+    select_set_t op[] = {
+        {cd, OP_RECV, NULL, recv},  // Define a channel operation for receiving.
+    };
+    return select_chan(op, 1, should_block);  // Attempt to perform the operation.
 }

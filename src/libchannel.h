@@ -54,6 +54,8 @@ typedef struct {
 
 #define SELECT_BLOCK    1
 #define SELECT_NONBLOCK 0
+#define OP_BLOCK        1
+#define OP_NONBLOCK     0
 /*
  * Structure: select_set_t
  * -----------------------
@@ -93,7 +95,7 @@ extern int init_libchannel(void);
  *    If the operation was not successful, it returns -1.
  */
 extern int send_chan(int cd, any_t *send);
-    
+extern int send_chan_bctrl(int cd, any_t *send, int should_block);
 
 /*
  * Function: recv_chan
@@ -109,7 +111,7 @@ extern int send_chan(int cd, any_t *send);
  *    If the operation was not successful, it returns -1.
  */
 extern int recv_chan(int cd, any_t *recv);
-
+extern int recv_chan_bctrl(int cd, any_t *recv, int should_block);
 /*
  * Function: select_chan_op
  * ------------------------

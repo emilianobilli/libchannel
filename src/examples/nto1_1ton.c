@@ -38,10 +38,6 @@ func main() {
 #include <unistd.h>
 #include <stdio.h>
 
-struct fnarg {
-    int c;
-    int d;
-};
 
 #define GO(func, arg) do { pthread_t __routine; pthread_create(&__routine, NULL, &func, arg); pthread_detach(__routine); } while(0)
 
