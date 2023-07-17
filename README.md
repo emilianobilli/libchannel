@@ -128,11 +128,10 @@ for (;;) {
         {b, OP_RECV, NULL, &v}
     };
     n = select_chan(op, 2, SELECT_BLOCK);
-    switch(n) {
-        case a:
-             // Received from a.
-        case b:
-             // Received from b.
+    if ( n == a ) {
+        // Received from a.
+    } else if (n == b) {
+        // Received from b.
     }
 }
 ```
