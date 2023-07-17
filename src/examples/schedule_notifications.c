@@ -46,9 +46,7 @@ void *function(void *arg) {
 }
 
 int after_duration(int d) {
-    pthread_t routine;
     struct fnarg *arg = malloc(sizeof(struct fnarg));
-    
     int c = make_chan(1);
     arg->c = c;
     arg->d = d;
