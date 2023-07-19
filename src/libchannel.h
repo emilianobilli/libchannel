@@ -166,4 +166,44 @@ extern int make_chan(size_t len);
  * 0 if the operation was successful, and -1 otherwise.
  */
 extern int close_chan(int cd);
+
+/*
+ * Function: cap
+ * --------------------
+ * This function returns the capacity of the channel.
+ *
+ * The capacity of a channel is the maximum number of items 
+ * that it can hold at any given time. This function will
+ * return the capacity if the channel exists and has been 
+ * properly initialized.
+ *
+ * If the channel is NULL or hasn't been properly initialized,
+ * the function returns a zero.
+ *
+ * Parameters:
+ * chan: The channel whose capacity we want to find out.
+ *
+ * Returns:
+ * The capacity of the channel, or zero if the channel is not properly initialized.
+ */
+extern int cap(int cd);
+/*
+ * Function: len
+ * --------------------
+ * This function returns the current length of the channel.
+ *
+ * The length of a channel is the current number of items 
+ * that it holds. This function will return the length if 
+ * the channel exists and has been properly initialized.
+ *
+ * If the channel is NULL or hasn't been properly initialized,
+ * the function returns a zero.
+ *
+ * Parameters:
+ * chan: The channel whose length we want to find out.
+ *
+ * Returns:
+ * The length of the channel, or zero if the channel is not properly initialized.
+ */
+extern int len(int cd);
 #endif

@@ -69,3 +69,4 @@ int is_closeable(chan_t *chan) {
     return (chan->recv_shift == NULL && chan->recvq.len == 0 && chan->send_shift == NULL && chan->sendq.len == 0);
 }
 
+

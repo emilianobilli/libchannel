@@ -485,3 +485,63 @@ int recv_chan_bctrl(int cd, any_t *recv, int should_block) {
     };
     return select_chan(op, 1, should_block);  // Attempt to perform the operation.
 }
+
+
+/*
+ * Function: cap
+ * --------------------
+ * This function returns the capacity of the channel.
+ *
+ * The capacity of a channel is the maximum number of items 
+ * that it can hold at any given time. This function will
+ * return the capacity if the channel exists and has been 
+ * properly initialized.
+ *
+ * If the channel is NULL or hasn't been properly initialized,
+ * the function returns a zero.
+ *
+ * Parameters:
+ * chan: The channel whose capacity we want to find out.
+ *
+ * Returns:
+ * The capacity of the channel, or zero if the channel is not properly initialized.
+ */
+int cap(int cd) {
+    chan_t *chan = get_channel_from_table(cd);
+    int _cap = 0;
+    if (chan && chan->cb) {
+        pthread_mutex_lock(&(chan->mutex));
+        _cap = chan->cb->cap;
+        pthread_mutex_unlock(&(chan->mutex));
+    }
+    return _cap;
+}
+
+/*
+ * Function: len
+ * --------------------
+ * This function returns the current length of the channel.
+ *
+ * The length of a channel is the current number of items 
+ * that it holds. This function will return the length if 
+ * the channel exists and has been properly initialized.
+ *
+ * If the channel is NULL or hasn't been properly initialized,
+ * the function returns a zero.
+ *
+ * Parameters:
+ * chan: The channel whose length we want to find out.
+ *
+ * Returns:
+ * The length of the channel, or zero if the channel is not properly initialized.
+ */
+int len(int cd) {
+    chan_t *chan = get_channel_from_table(cd);
+    int _len = 0;
+    if (chan && chan->cb) {
+        pthread_mutex_lock(&(chan->mutex));
+        _len = chan->cb->len;
+        pthread_mutex_unlock(&(chan->mutex));
+    }
+    return _len;
+}
